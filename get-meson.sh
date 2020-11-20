@@ -27,13 +27,13 @@ check_os() {
 
 get_package() {
   LOOKUP_URL="$SERVICE_URL&os=$PKG&version=v$VERSION_STABLE"
-  MD=$(curl -Ss "${LOOKUP_URL}" | grep -v sha256 | grep " \[meson\]")
+  MD=$(curl -S "${LOOKUP_URL}")
   DOWNLOAD_FILE=$(echo "$MD" | grep -oE 'https://[^)]+')
 }
 
 check_upgrade() {
-
-  NEW_VERSION=$(echo "$DOWNLOAD_FILE" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tr -d 'v')   
+  echo "$DOWNLOAD_FILE"
+  NEW_VERSION=$(echo "$DOWNLOAD_FILE" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | tr -d 'v')
 
   # Determine old (installed) Version 
   meson_bin=$(which meson)
@@ -72,6 +72,7 @@ install() {
 }
 
 version_gt() {
+    printf '%s\n' "$@"
 	test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";
 }
 
@@ -84,12 +85,12 @@ cleanup() {
 
 cat << "EOF"
 +====================================================================================+
-|  __  __                         _   _      _                      _    
-| |  \/  |                       | \ | |    | |                    | |   
-| | \  / | ___  ___  ___  _ __   |  \| | ___| |___      _____  _ __| | __
-| | |\/| |/ _ \/ __|/ _ \| '_ \  | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ /
-| | |  | |  __/\__ \ (_) | | | | | |\  |  __/ |_ \ V  V / (_) | |  |   < 
-| |_|  |_|\___||___/\___/|_| |_| |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\
+|      __  __                         _   _      _                      _
+|     |  \/  |                       | \ | |    | |                    | |
+|     | \  / | ___  ___  ___  _ __   |  \| | ___| |___      _____  _ __| | __
+|     | |\/| |/ _ \/ __|/ _ \| '_ \  | . ` |/ _ \ __\ \ /\ / / _ \| '__| |/ /
+|     | |  | |  __/\__ \ (_) | | | | | |\  |  __/ |_ \ V  V / (_) | |  |   <
+|     |_|  |_|\___||___/\___/|_| |_| |_| \_|\___|\__| \_/\_/ \___/|_|  |_|\_\
 =====================================================================================+
 
 EOF
@@ -102,10 +103,8 @@ if ! which curl &> /dev/null ; then
 fi
 ##
 
-
 check_os
 get_package
 check_upgrade
 install
 cleanup
-
