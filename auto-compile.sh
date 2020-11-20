@@ -2,16 +2,22 @@
 # Copyright 2020 Daqnext Foundation Ltd.
 
 VERSION="v0.1.1"
+COPY_FILES=("config.txt" "*.shoppynext.com_key.key" "*.shoppynext.com_chain.crt")
+
+generate_tar() {
+  cp ${COPY_FILES[*]} "./build/$1" && cd build && tar -zcvf "$1.tar.gz" $1 && rm -rf $1 && cd ..|| exit
+}
 
 mkdir build
 
-echo "Compiling Windows x86/x86_64 version"
-GOOS=windows GOARCH=386   go build -o ./build/meson-${VERSION}-win32.exe
-GOOS=windows GOARCH=amd64 go build -o ./build/meson-${VERSION}-win64.exe
+echo "Compiling Windows x86_64 version"
+
+DIR="meson-${VERSION}-win32" && GOOS=windows GOARCH=386   go build -o "./build/${DIR}/meson.${VERSION}.exe" && generate_tar ${DIR}
+DIR="meson-${VERSION}-win64" && GOOS=windows GOARCH=amd64 go build -o "./build/${DIR}/meson.${VERSION}.exe" && generate_tar ${DIR}
 
 echo "Compiling MAC     x86_64 version"
-GOOS=darwin GOARCH=amd64 go build -o ./build/meson-${VERSION}-darwin-amd64
+DIR="meson-${VERSION}-darwin-amd64" && GOOS=darwin GOARCH=amd64 go build -o "./build/${DIR}/meson.${VERSION}" && generate_tar ${DIR}
 
-echo "Compiling Linux   x86/x86_64 version"
-GOOS=linux GOARCH=386   go build -o ./build/meson-${VERSION}-linux-x86
-GOOS=linux GOARCH=amd64 go build -o ./build/meson-${VERSION}-linux-amd64
+echo "Compiling Linux   x86_64 version"
+DIR="meson-${VERSION}-linux-386"   &&  GOOS=linux GOARCH=386   go build -o "./build/${DIR}/meson.${VERSION}" && generate_tar ${DIR}
+DIR="meson-${VERSION}-linux-amd64" &&  GOOS=linux GOARCH=amd64 go build -o "./build/${DIR}/meson.${VERSION}" && generate_tar ${DIR}
